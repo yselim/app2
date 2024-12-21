@@ -15,7 +15,7 @@ import { ThemedView } from "@/components/ThemedView";
 import { useState } from "react";
 
 export default function HomeScreen() {
-  const BOX_AMOUNT = 70;
+  const BOX_AMOUNT = 20;
   const HIGLIGHT_BOX_AMOUNT = 3;
 
   const [boxes, setBoxes] = useState<number[]>(
@@ -25,13 +25,30 @@ export default function HomeScreen() {
   const [randomlySelectedIndexes, setRandomlySelectedIndexes] = useState<
     number[]
   >([]);
-
+  const [count, setCount] = useState(0);
   const renderABox = (isHighligting: number, index: number) => {
     return (
       <Pressable
         onPress={() => {
           const newBoxes = [...boxes];
+            if (randomlySelectedIndexes[count] === index) {
+            setCount(count + 1);
+            console.log("count:",count)
+            if (count === HIGLIGHT_BOX_AMOUNT-1) {
+              alert("You won!");
+              startGamme();
+            }
+            } else {
+              console.log("count:",count)
+              alert("Game Over!");
+              startGamme();
+              
+            const resetBoxes = newBoxes.map(() => 0);
+            setBoxes(resetBoxes);
+            }
           newBoxes[index] = 1;
+          // console.log(newBoxes)
+          console.log(index)
           setBoxes(newBoxes);
         }}
         key={index}
@@ -46,7 +63,8 @@ export default function HomeScreen() {
   };
 
   const startGamme = async () => {
-    const intialBoxes = [...boxes];
+    const intialBoxes = Array(BOX_AMOUNT).fill(0); // Reset boxes to original state
+    setBoxes(intialBoxes);
     const randomlySelectedBoxIndexes: number[] = [];
     for (let i = 0; i < HIGLIGHT_BOX_AMOUNT; i++) {
       await new Promise((resolve) => {
@@ -54,9 +72,10 @@ export default function HomeScreen() {
           const newBoxes = [...boxes];
           const boxIndexToBeHighleted = Math.floor(Math.random() * BOX_AMOUNT);
           randomlySelectedBoxIndexes.push(boxIndexToBeHighleted);
+          console.log(randomlySelectedBoxIndexes)
           newBoxes[boxIndexToBeHighleted] = 1;
           setBoxes(newBoxes);
-          console.log("newBoxes: ", newBoxes);
+          // console.log("newBoxes: ", newBoxes);
           resolve(undefined);
         }, 1000);
       });
