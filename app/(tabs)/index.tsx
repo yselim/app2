@@ -12,7 +12,7 @@ import { HelloWave } from "@/components/HelloWave";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function HomeScreen() {
   const BOX_AMOUNT = 20;
@@ -24,32 +24,40 @@ export default function HomeScreen() {
 
   const [randomlySelectedIndexes, setRandomlySelectedIndexes] = useState<
     number[]
-  >([]);
-  const [count, setCount] = useState(0);
+  >([]); // "[3,8,1]""
+
+  const [pressedBoxIndexes, setPressedBoxIndexes] = useState<number[]>([]); //"[3,7,1]""
+
+
+  useEffect(() => {
+    console.log("pressedBoxIndexes: ", pressedBoxIndexes);
+    if (pressedBoxIndexes.length === HIGLIGHT_BOX_AMOUNT) {
+      alert("Game is over!");
+      console.log("Game is over!");
+
+      let userPoint = 0;
+
+      for (let i = 0; i < randomlySelectedIndexes.length; i++) {
+        const isCorrect = randomlySelectedIndexes[i] === pressedBoxIndexes[i];
+        if (isCorrect) {
+          userPoint++;
+        }
+      }
+
+      alert(`You got ${userPoint} out of ${HIGLIGHT_BOX_AMOUNT}`);
+      setPressedBoxIndexes([]);
+      setRandomlySelectedIndexes([]);
+    }
+  }, [pressedBoxIndexes]);
+
   const renderABox = (isHighligting: number, index: number) => {
     return (
       <Pressable
         onPress={() => {
-          const newBoxes = [...boxes];
-            if (randomlySelectedIndexes[count] === index) {
-            setCount(count + 1);
-            console.log("count:",count)
-            if (count === HIGLIGHT_BOX_AMOUNT-1) {
-              alert("You won!");
-              startGamme();
-            }
-            } else {
-              console.log("count:",count)
-              alert("Game Over!");
-              startGamme();
-              
-            const resetBoxes = newBoxes.map(() => 0);
-            setBoxes(resetBoxes);
-            }
-          newBoxes[index] = 1;
-          // console.log(newBoxes)
-          console.log(index)
-          setBoxes(newBoxes);
+          console.log("We are pressing: ", index);
+          setPressedBoxIndexes([...pressedBoxIndexes, index]); // [3, 8,1] 
+          
+       
         }}
         key={index}
         style={{
@@ -72,7 +80,7 @@ export default function HomeScreen() {
           const newBoxes = [...boxes];
           const boxIndexToBeHighleted = Math.floor(Math.random() * BOX_AMOUNT);
           randomlySelectedBoxIndexes.push(boxIndexToBeHighleted);
-          console.log(randomlySelectedBoxIndexes)
+          // console.log(randomlySelectedBoxIndexes);
           newBoxes[boxIndexToBeHighleted] = 1;
           setBoxes(newBoxes);
           // console.log("newBoxes: ", newBoxes);
@@ -80,6 +88,8 @@ export default function HomeScreen() {
         }, 1000);
       });
     }
+
+    console.log("randomlySelectedBoxIndexes: ", randomlySelectedBoxIndexes);
 
     setBoxes(intialBoxes);
     setRandomlySelectedIndexes(randomlySelectedBoxIndexes);
